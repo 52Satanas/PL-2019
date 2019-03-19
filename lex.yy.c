@@ -480,11 +480,10 @@ char *yytext;
     char filename[1024];
     char* title;
     char* quote;
-
     int numAut = 0;
-#line 485 "lex.yy.c"
+#line 484 "lex.yy.c"
 
-#line 487 "lex.yy.c"
+#line 486 "lex.yy.c"
 
 #define INITIAL 0
 #define AUTOR 1
@@ -702,10 +701,10 @@ YY_DECL
 		}
 
 	{
-#line 24 "work.fl"
+#line 23 "work.fl"
 
 
-#line 708 "lex.yy.c"
+#line 707 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -765,7 +764,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 26 "work.fl"
+#line 25 "work.fl"
 {
 
                 title = strdup(yytext+7);
@@ -773,29 +772,29 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 31 "work.fl"
+#line 30 "work.fl"
 {
 
                 BEGIN AUTOR;
                 sprintf(filename,"autores/autor%d.html",numAut++);
                 autor = fopen(filename,"w");
-                fprintf(idx, "<a href=\"%s\">%s</a><br><hr>", filename, title);
-                fprintf(autor,"%s",title);
+                fprintf(autores, "<a href=\"%s\">%s</a><br><hr>", filename, title);
+                fprintf(autor,"<h1>%s</h1><br><hr>",title);
                 
 }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 41 "work.fl"
+#line 40 "work.fl"
 {
                         ;
-                        fprintf(autor,"<p>%s</p><br><hr>", strdup(yytext+7));
+                        fprintf(autor,"<p>%s</p><br>", strdup(yytext+7));
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 47 "work.fl"
+#line 46 "work.fl"
 {
 
                     BEGIN INITIAL;
@@ -804,15 +803,15 @@ YY_RULE_SETUP
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 54 "work.fl"
+#line 53 "work.fl"
 {;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 56 "work.fl"
+#line 55 "work.fl"
 ECHO;
 	YY_BREAK
-#line 815 "lex.yy.c"
+#line 814 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(AUTOR):
 	yyterminate();
@@ -1818,7 +1817,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "work.fl"
+#line 55 "work.fl"
 
 
 
@@ -1826,9 +1825,11 @@ int main(int argc, char** argv){
     if(argc > 1){
         yyin = fopen(argv[1], "r");
         idx = fopen("index.html", "w");
+        autores = fopen("autores.html","w");
     }
+    fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","autores.html", "Autores:");
     yylex();
-    fprintf(idx,"<h1>Há %d autores</h1><br><hr>",numAut);
+    fprintf(idx, "<h4>Há %d autores</h4><br><hr>",numAut);
     fclose(yyin);
     fclose(idx);
 }

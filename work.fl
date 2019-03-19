@@ -13,7 +13,6 @@
     char filename[1024];
     char* title;
     char* quote;
-
     int numAut = 0;
 %}
 
@@ -33,14 +32,14 @@
                 BEGIN AUTOR;
                 sprintf(filename,"autores/autor%d.html",numAut++);
                 autor = fopen(filename,"w");
-                fprintf(idx, "<a href=\"%s\">%s</a><br><hr>", filename, title);
-                fprintf(autor,"%s",title);
+                fprintf(autores, "<a href=\"%s\">%s</a><br><hr>", filename, title);
+                fprintf(autor,"<h1>%s</h1><br><hr>",title);
                 
 }
 
 <AUTOR>\*\s*"&quot;"[^&]+ {
                         ;
-                        fprintf(autor,"<p>%s</p><br><hr>", strdup(yytext+7));
+                        fprintf(autor,"<p>%s</p><br>", strdup(yytext+7));
 }
 
 
@@ -60,9 +59,11 @@ int main(int argc, char** argv){
     if(argc > 1){
         yyin = fopen(argv[1], "r");
         idx = fopen("index.html", "w");
+        autores = fopen("autores.html","w");
     }
+    fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","autores.html", "Autores:");
     yylex();
-    fprintf(idx,"<h1>Há %d autores</h1><br><hr>",numAut);
+    fprintf(idx, "<h4>Há %d autores</h4><br><hr>",numAut);
     fclose(yyin);
     fclose(idx);
 }
