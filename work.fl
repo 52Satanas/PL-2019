@@ -1,0 +1,71 @@
+
+
+%{
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+
+    FILE* idx;
+    FILE* autores;
+    FILE* autor;
+
+    char filename[1024];
+    char* title;
+    char* quote;
+
+    int numAut = 0;
+%}
+
+%option noyywrap
+
+%x AUTOR
+
+%%
+
+"<title>"[^<]+ {
+
+                title = strdup(yytext+7);
+}
+
+"{{Autor" {
+
+                BEGIN AUTOR;
+                sprintf(filename,"autores/autor%d.html",numAut++);
+                autor = fopen(filename,"w");
+                fprintf(idx, "<a href=\"%s\">%s</a><br><hr>", filename, title);
+                fprintf(autor,"%s",title);
+                
+}
+
+<AUTOR>\*\s*"&quot;"[^&]+ {
+                        ;
+                        fprintf(autor,"<p>%s</p><br><hr>", strdup(yytext+7));
+}
+
+
+<AUTOR>\<\/page\> {
+
+                    BEGIN INITIAL;
+}
+
+
+
+<*>.|\n {;}
+
+%%
+
+
+int main(int argc, char** argv){
+    if(argc > 1){
+        yyin = fopen(argv[1], "r");
+        idx = fopen("index.html", "w");
+    }
+    yylex();
+    fprintf(idx,"<h1>Há %d autores</h1><br><hr>",numAut);
+    fclose(yyin);
+    fclose(idx);
+}
+
+
+
