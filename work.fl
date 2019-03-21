@@ -9,11 +9,12 @@
     FILE* idx;
     FILE* autores;
     FILE* autor;
+    FILE* quotes;
 
     char filename[1024];
     char* title;
     char* quote;
-    int numAut = 0;
+    int numAut = 0, numQuot =0;
 %}
 
 %option noyywrap
@@ -40,6 +41,8 @@
 <AUTOR>\*\s*"&quot;"[^&]+ {
                         ;
                         fprintf(autor,"<p>%s</p><br>", strdup(yytext+7));
+                        fprintf(quotes,"<p>%s by %s</p><br>", strdup(yytext+7),title);
+                        numQuot++;
 }
 
 
@@ -60,10 +63,13 @@ int main(int argc, char** argv){
         yyin = fopen(argv[1], "r");
         idx = fopen("index.html", "w");
         autores = fopen("autores.html","w");
+        quotes = fopen("quotes.html","w");
     }
     fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","autores.html", "Autores:");
+    fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","quotes.html", "Quotes:");
     yylex();
     fprintf(idx, "<h4>Há %d autores</h4><br><hr>",numAut);
+    fprintf(idx, "<h4>Há %d quotes</h4><br><hr>",numQuot);
     fclose(yyin);
     fclose(idx);
 }
