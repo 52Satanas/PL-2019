@@ -5,16 +5,52 @@
     #include<stdio.h>
     #include<stdlib.h>
     #include<string.h>
+    #include<ctype.h>
 
     FILE* idx;
     FILE* autores;
     FILE* autor;
     FILE* quotes;
+    FILE* stats;
+    FILE* categorias;
+    FILE* cat;
 
     char filename[1024];
+    char categor[1024];
     char* title;
     char* quote;
-    int numAut = 0, numQuot =0;
+    char** cats;
+    char temp[1024];
+
+    int numAut = 0, numQuot =0, numCateg =0;
+
+    int existe(char* fname){
+    FILE *file;
+    if ((file = fopen(fname, "r")) != NULL)
+    {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+    }
+
+    char* remcharCaps(char *strin, char chr){
+            int i, j=0;
+            char cupdate[1000];               
+
+                for(i = 0; strin[i] != '\0'; i++)   
+                {
+                        if(strin[i] != chr)         
+                        {
+                        cupdate[j] = tolower(strin[i]);  
+                        j++;            
+                        }
+                }                        
+            cupdate[j] = '\0';              
+            strcpy(strin, cupdate);                 
+            return strin;
+}
+
 %}
 
 %option noyywrap
@@ -38,13 +74,28 @@
                 
 }
 
-<AUTOR>\*\s*"&quot;"[^&]+ {
+
+
+<AUTOR>^\*(\ )?([\“\'\"]|&quot;).* {
                         ;
-                        fprintf(autor,"<p>%s</p><br>", strdup(yytext+7));
-                        fprintf(quotes,"<p>%s by %s</p><br>", strdup(yytext+7),title);
+                        fprintf(autor,"<p>%s</p>", strdup(yytext));
+                        fprintf(quotes,"<p>%s by %s</p><br>", strdup(yytext),title);
                         numQuot++;
 }
 
+<AUTOR>"[[Categoria:"[^\]|\|]+ {
+
+                            sprintf(categor,"alfa/%s.html",remcharCaps(strdup(yytext+12),' '));
+                            if(!existe(categor)){
+                                fprintf(categorias, "<a href=\"%s\">%s</a><br><hr>", categor, strdup(yytext+2));
+                                numCateg++;
+                            }
+                            cat = fopen(categor,"a");
+                            sprintf(temp,"../%s",filename);
+                            fprintf(cat,"<a href=\"%s\">%s</a><br><hr>",temp, title);
+                            
+                            
+}
 
 <AUTOR>\<\/page\> {
 
@@ -58,21 +109,38 @@
 %%
 
 
+
+
+
+
+
 int main(int argc, char** argv){
     if(argc > 1){
         yyin = fopen(argv[1], "r");
         idx = fopen("index.html", "w");
         autores = fopen("autores.html","w");
         quotes = fopen("quotes.html","w");
+        stats = fopen("stats.html","w");
+        categorias = fopen("categorias.html","w");
     }
     fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","autores.html", "Autores:");
     fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","quotes.html", "Quotes:");
+    fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","stats.html", "Estatísticas");
+    fprintf(idx,"<a href=\"%s\">%s</a><br><hr>","categorias.html","Categorias");
     yylex();
-    fprintf(idx, "<h4>Há %d autores</h4><br><hr>",numAut);
-    fprintf(idx, "<h4>Há %d quotes</h4><br><hr>",numQuot);
+    fprintf(stats, "<h4>Há %d autores</h4><br><hr>",numAut);
+    fprintf(stats, "<h4>Há %d quotes</h4><br><hr>",numQuot);
+    double media = (double)numQuot / (double)numAut;
+    fprintf(stats, "<h4>Média de %f quotes por autor</h4><br><hr>",media);
+    fprintf(stats, "<h4>Há um total de %d categorias</h4><br><hr>",numCateg);
     fclose(yyin);
     fclose(idx);
+    fclose(autores);
+    fclose(quotes);
+    fclose(stats);
+    fclose(categorias);
 }
+
 
 
 
