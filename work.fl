@@ -23,7 +23,7 @@
     char temp[1024];
     char maiorAutor[1024];
     
-    int quotCount = 0, maisQuotes = 0;
+    int quotCount = 0, maisQuotes = 0, metaInf = 0;
     int numAut = 0, numQuot =0, numCateg =0;
 
     int existe(char* fname){
@@ -76,10 +76,11 @@
                 
 }
 
-<AUTOR>"w:"([^\<][^\n])+ {
-
+<AUTOR>"w:".* {
+                    if(metaInf == 0){
                     fprintf(autor,"<h4> [[%s </h4><hr><hr><br>", strdup(yytext+2));
-
+                    metaInf ++;
+                    }
 
 
 }
@@ -115,6 +116,7 @@
                          maisQuotes = quotCount;
                     }
                     quotCount = 0; 
+                    metaInf = 0;
 
                     BEGIN INITIAL;
 }
