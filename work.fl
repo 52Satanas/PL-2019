@@ -21,7 +21,9 @@
     char* quote;
     char** cats;
     char temp[1024];
-
+    char maiorAutor[1024];
+    
+    int quotCount = 0, maisQuotes = 0;
     int numAut = 0, numQuot =0, numCateg =0;
 
     int existe(char* fname){
@@ -70,18 +72,28 @@
                 sprintf(filename,"autores/autor%d.html",numAut++);
                 autor = fopen(filename,"w");
                 fprintf(autores, "<a href=\"%s\">%s</a><br><hr>", filename, title);
-                fprintf(autor,"<h1>%s</h1><br><hr>",title);
+                fprintf(autor,"<h1>%s</h1><br>",title);
                 
 }
 
+<AUTOR>"w:"([^\<][^\n])+ {
 
+                    fprintf(autor,"<h4> [[%s </h4><hr><hr><br>", strdup(yytext+2));
+
+
+
+}
 
 <AUTOR>^\*(\ )?([\“\'\"]|&quot;).* {
                         ;
                         fprintf(autor,"<p>%s</p>", strdup(yytext));
                         fprintf(quotes,"<p>%s by %s</p><br>", strdup(yytext),title);
                         numQuot++;
+                        quotCount++;
 }
+
+
+
 
 <AUTOR>"[[Categoria:"[^\]|\|]+ {
 
@@ -98,6 +110,11 @@
 }
 
 <AUTOR>\<\/page\> {
+                    if(quotCount>maisQuotes){
+                         sprintf(maiorAutor,title);
+                         maisQuotes = quotCount;
+                    }
+                    quotCount = 0; 
 
                     BEGIN INITIAL;
 }
@@ -133,6 +150,7 @@ int main(int argc, char** argv){
     double media = (double)numQuot / (double)numAut;
     fprintf(stats, "<h4>Média de %f quotes por autor</h4><br><hr>",media);
     fprintf(stats, "<h4>Há um total de %d categorias</h4><br><hr>",numCateg);
+    fprintf(stats, "<h4>O autor com mais quotes é %s com %d quotes.</h4><br><hr>", maiorAutor , maisQuotes);
     fclose(yyin);
     fclose(idx);
     fclose(autores);
